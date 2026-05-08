@@ -60,9 +60,13 @@ export default function LoginPage() {
       <div className="login-bg" />
       <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-icon">🎬</div>
-          <h1>CineCumbres</h1>
-          <p>Cumbres de Santa María</p>
+          <img 
+            src="https://cumbresdesantamaria.cl/wp-content/uploads/2021/01/LOGO-CUMBRES-DE-SANTA-MARIA-300x165.png" 
+            alt="Cumbres de Santa María" 
+            style={{ height: 70, width: 'auto', marginBottom: 24, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+          />
+          <h1>Reservas Cumbres</h1>
+          <p>Portal de Residentes</p>
         </div>
         <Suspense fallback={<div className="loading-center"><div className="spinner" /></div>}>
           <LoginForm />

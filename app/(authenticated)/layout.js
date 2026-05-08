@@ -2,7 +2,7 @@ import { SessionProvider } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 
 export const metadata = {
-  title: 'Calendario — CineCumbres',
+  title: 'Calendario — Reservas Cumbres',
 };
 
 export default function DashboardLayout({ children }) {

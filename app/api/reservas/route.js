@@ -18,20 +18,21 @@ export async function GET(request) {
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const myReservations = searchParams.get('mine');
+  const facility = searchParams.get('facility') || 'cine';
 
   try {
     let reservations;
 
     if (myReservations === 'true') {
-      reservations = getReservationsByUser(Number(session.user.id));
+      reservations = await getReservationsByUser(Number(session.user.id));
     } else if (startDate && endDate) {
-      reservations = getReservationsByDateRange(startDate, endDate);
+      reservations = await getReservationsByDateRange(startDate, endDate, facility);
     } else if (date) {
-      reservations = getReservationsByDate(date);
+      reservations = await getReservationsByDate(date, facility);
     } else {
       // Default: today's reservations
       const today = new Date().toISOString().split('T')[0];
-      reservations = getReservationsByDate(today);
+      reservations = await getReservationsByDate(today, facility);
     }
 
     return Response.json(reservations);
@@ -48,7 +49,7 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const { date, startTime, endTime, title, notes } = body;
+    const { date, startTime, endTime, title, notes, facility = 'cine' } = body;
 
     if (!date || !startTime || !endTime) {
       return Response.json(
@@ -78,28 +79,60 @@ export async function POST(request) {
       );
     }
 
-    // Validate max 24h duration
+    // Validate max 24h duration or overnight
     const start = startTime.split(':').map(Number);
     const end = endTime.split(':').map(Number);
     const startMinutes = start[0] * 60 + start[1];
     const endMinutes = end[0] * 60 + end[1];
-    if (endMinutes <= startMinutes) {
+    
+    if (startMinutes === endMinutes) {
       return Response.json(
-        { error: 'La hora de fin debe ser posterior a la hora de inicio' },
+        { error: 'La hora de fin no puede ser igual a la hora de inicio' },
         { status: 400 }
       );
     }
 
-    const reservation = createReservation(
-      Number(session.user.id),
-      date,
-      startTime,
-      endTime,
-      title || '',
-      notes || ''
-    );
+    let reservation;
+    if (endMinutes < startMinutes) {
+      // Overnight reservation: split into two records
+      const nextDay = new Date(reservationDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const nextDateStr = nextDay.toISOString().split('T')[0];
 
-    return Response.json(reservation, { status: 201 });
+      // Insert first part (startTime to 24:00)
+      await createReservation(
+        Number(session.user.id),
+        facility,
+        date,
+        startTime,
+        '24:00',
+        title || '',
+        notes || ''
+      );
+
+      // Insert second part (00:00 to endTime)
+      reservation = await createReservation(
+        Number(session.user.id),
+        facility,
+        nextDateStr,
+        '00:00',
+        endTime,
+        title || '',
+        notes || ''
+      );
+    } else {
+      reservation = await createReservation(
+        Number(session.user.id),
+        facility,
+        date,
+        startTime,
+        endTime,
+        title || '',
+        notes || ''
+      );
+    }
+
+    return Response.json(reservation || { success: true }, { status: 201 });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 409 });
   }
@@ -119,7 +152,7 @@ export async function DELETE(request) {
       return Response.json({ error: 'ID de reserva requerido' }, { status: 400 });
     }
 
-    cancelReservation(
+    await cancelReservation(
       Number(id),
       Number(session.user.id),
       session.user.role === 'admin'

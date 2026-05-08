@@ -8,7 +8,7 @@ export async function GET() {
   }
 
   try {
-    const users = getAllUsers();
+    const users = await getAllUsers();
     return Response.json(users);
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
@@ -32,7 +32,7 @@ export async function POST(request) {
       );
     }
 
-    const user = createUser(email, password, name, apartment, role || 'resident');
+    const user = await createUser(email, password, name, apartment, role || 'resident');
     return Response.json(user, { status: 201 });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 409 });
@@ -53,7 +53,7 @@ export async function PUT(request) {
       return Response.json({ error: 'ID de usuario requerido' }, { status: 400 });
     }
 
-    updateUser(Number(id), data);
+    await updateUser(Number(id), data);
     return Response.json({ success: true });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
@@ -79,7 +79,7 @@ export async function DELETE(request) {
       return Response.json({ error: 'No puedes eliminarte a ti mismo' }, { status: 400 });
     }
 
-    deleteUser(Number(id));
+    await deleteUser(Number(id));
     return Response.json({ success: true });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });

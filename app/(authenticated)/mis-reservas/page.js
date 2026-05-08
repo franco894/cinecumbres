@@ -68,7 +68,7 @@ export default function MisReservasPage() {
           <div className="empty-state">
             <div className="empty-state-icon">🎬</div>
             <p className="empty-state-text">Aún no tienes reservas</p>
-            <p className="text-sm text-muted mt-2">¡Reserva la sala de cine desde el Dashboard!</p>
+            <p className="text-sm text-muted mt-2">¡Ve al inicio y elige una instalación para reservar!</p>
           </div>
         </div>
       ) : (
@@ -84,7 +84,12 @@ export default function MisReservasPage() {
                     </div>
                     <div className="res-card-info">
                       <div className="res-card-title">{formatDateDisplay(r.date)}</div>
-                      <div className="res-card-detail">Depto {r.apartment}</div>
+                      <div className="res-card-detail">
+                        <span style={{ marginRight: 8, fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {r.facility === 'reuniones' ? '🤝 Sala de Reuniones' : '🎬 Sala de Cine'}
+                        </span>
+                        Depto {r.apartment}
+                      </div>
                     </div>
                     <div className="res-card-actions">
                       <span className="badge badge-amber">Activa</span>
@@ -107,7 +112,12 @@ export default function MisReservasPage() {
                     <div className="res-card-time">{r.start_time}<br/>{r.end_time}</div>
                     <div className="res-card-info">
                       <div className="res-card-title">{formatDateDisplay(r.date)}</div>
-                      <div className="res-card-detail">Depto {r.apartment}</div>
+                      <div className="res-card-detail">
+                        <span style={{ marginRight: 8, fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {r.facility === 'reuniones' ? '🤝 Sala de Reuniones' : '🎬 Sala de Cine'}
+                        </span>
+                        Depto {r.apartment}
+                      </div>
                     </div>
                     <span className="badge badge-neutral">Finalizada</span>
                   </div>

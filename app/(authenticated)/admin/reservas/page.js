@@ -13,7 +13,7 @@ export default function AdminReservasPage() {
       const now = new Date();
       const start = now.toISOString().split('T')[0];
       const end = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().split('T')[0];
-      const res = await fetch(`/api/reservas?startDate=${start}&endDate=${end}`);
+      const res = await fetch(`/api/reservas?startDate=${start}&endDate=${end}&facility=all`);
       const data = await res.json();
       setReservations(Array.isArray(data) ? data : []);
     } catch { setReservations([]); }
@@ -68,6 +68,7 @@ export default function AdminReservasPage() {
               <thead>
                 <tr>
                   <th>Fecha</th>
+                  <th>Instalación</th>
                   <th>Horario</th>
                   <th>Residente</th>
                   <th>Depto</th>
@@ -78,6 +79,7 @@ export default function AdminReservasPage() {
                 {reservations.map(r => (
                   <tr key={r.id}>
                     <td style={{ fontWeight: 600 }}>{formatDateDisplay(r.date)}</td>
+                    <td>{r.facility === 'reuniones' ? '🤝 Reuniones' : '🎬 Cine'}</td>
                     <td>{r.start_time} — {r.end_time}</td>
                     <td>{r.user_name}</td>
                     <td><span className="badge badge-amber">{r.apartment}</span></td>
